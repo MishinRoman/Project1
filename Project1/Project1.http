@@ -1,0 +1,43 @@
+﻿@Project1_HostAddress = http://localhost:5098
+@Tocken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoibWlzaGluX3JvbWFuMTIzIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoibWlzaGluX3JvbWFuMTIzQG1haWwuY29tIiwiZXhwIjoxNjk4NzkyMTk4LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwOTgiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUwOTgifQ.9EEg39A5Dw3iJz69RpiaoLPVo_Rujflb-ZCNusJGz2w
+
+GET  {{Project1_HostAddress}}/api/currency
+###
+
+###
+
+POST {{Project1_HostAddress}}/api/login/register
+Content-Type: application/json
+
+{
+  "userName":"mishin_roman1232343",
+  "password":"mishin123sssssssssf"
+
+}
+
+###
+
+POST {{Project1_HostAddress}}/api/login/login
+Content-Type: application/json
+
+{
+  "userName":"mishin_roman123",
+  "password":"mishin123"
+}
+
+###
+
+GET {{Project1_HostAddress}}/api/currency
+Accept:application/json
+Authorization:Bearer {{Tocken}}
+
+
+
+###
+
+GET {{Project1_HostAddress}}/_configuration/1c5807e02-89ae-4843-a27a-ff605f68206d
+###
+
+GET {{Project1_HostAddress}}/api/currency
+
+###
