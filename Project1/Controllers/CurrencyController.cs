@@ -6,9 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Updater.Data;
 
 using Updater;
+using Microsoft.Build.Logging;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Project1.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class CurrencyController : ControllerBase
@@ -18,7 +21,7 @@ namespace Project1.Controllers
         {
             _db = db;
         }
-        [Authorize]
+       
         [HttpGet]
         public async Task<IActionResult> GetCurrences()
         {
@@ -26,10 +29,11 @@ namespace Project1.Controllers
             return Ok(currencies);
         }
 
-        [Authorize]
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCurrency(string Id)
         {
+            
             var currency = await _db.Currencies.FirstOrDefaultAsync(c => c.ID == Id);
             return Ok(currency);
         }

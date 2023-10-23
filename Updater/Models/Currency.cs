@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Google.Protobuf.WellKnownTypes;
+
+using System.ComponentModel.DataAnnotations;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Xml.XPath;
@@ -9,6 +11,7 @@ namespace Updater.Models
     {
        
         [XmlAttribute("ID")]
+        [Key]
         public string ID;
         public string Name { get; set; }
         [XmlElement( ElementName="VunitRate")]
@@ -16,7 +19,7 @@ namespace Updater.Models
         public string NumCode { get; set; }
         public string Nominal { get; set; }
         public string CharCode { get; set; }
-        public string Value {get; set;
-        }
+        public string Value {get; set;}
+
     }
 }

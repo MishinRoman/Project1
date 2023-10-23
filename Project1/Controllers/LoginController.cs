@@ -2,7 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+
+using Org.BouncyCastle.Asn1.UA;
+
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -21,29 +26,27 @@ namespace Project1.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public LoginController(
-            ApplicationDbContext context, 
-            IConfiguration configuration, 
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager
+            ApplicationDbContext context,
+            IConfiguration configuration
             )
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
             _configuration = configuration;
             _context = context;
-
         }
 
         PasswordHasher<ApplicationUser> hasher = new PasswordHasher<ApplicationUser>();
 
+        
 
         [HttpPost("register")]
-        public async Task<ActionResult<ApplicationUser>> RegisterAsync(UserLoginDTO request)
+        public async Task<IActionResult> RegisterAsync(UserLoginDTO request)
         {
+            if(request.UserName.IsNullOrEmpty()||request.Password.IsNullOrEmpty()) 
+            {
+                return StatusCode(StatusCodes.Status406NotAcceptable, new {message= "Пользователь уже есть"});            
+                    }
             var userFromDb = await _context?.Users.FirstOrDefaultAsync(u => u.UserName == request.UserName);
 
             if (userFromDb != null)
@@ -51,26 +54,42 @@ namespace Project1.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, "This login exist");
 
             }
-            
-           
+
+
             var user = new ApplicationUser
             {
                 UserName = request.UserName,
                 Email = request.UserName + "@mail.com",
-                PhoneNumber = "333-2222-333-44"
+                PhoneNumber = "333-2222-333-44",
+                EmailConfirmed=true,
+                PhoneNumberConfirmed=true,
+               
                 //...
 
             };
 
-           var result = await _userManager.CreateAsync(user, request.Password);
+            var identityUserLogin = new IdentityUserLogin<string>
+            {
+                UserId = user.Id,
+                LoginProvider = user.UserName,
+                ProviderDisplayName = user.UserName,
+                ProviderKey = user.Id
 
-           user.PasswordHash = hasher.HashPassword(user, request.Password);
+            };
+            
+            user.PasswordHash = hasher.HashPassword(user, request.Password);
+           if (user == null) 
+            {
 
-            //if (user == null) { return StatusCode(StatusCodes.Status500InternalServerError, new { message = "User Registration Error" }); }
-            if (!result.Succeeded) { return StatusCode(StatusCodes.Status406NotAcceptable, new { message = result.Errors }); }
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "User Registration Error" }); 
 
-
+            }
+           
             await _context.Users.AddAsync(user);
+
+
+            await _context.UserLogins.AddAsync(identityUserLogin);
+
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -81,56 +100,44 @@ namespace Project1.Controllers
         [HttpPost("login")]
         public async Task<ActionResult> Login(UserLoginDTO logingUser)
         {
+            var userFormDb = await _context.Users.FirstOrDefaultAsync(u => u.UserName == logingUser.UserName);
 
-            var user= await _userManager.FindByNameAsync(logingUser.UserName);
-                      
-            if(user ==null) return  NotFound("User not found");
-           
-            var result = await _signInManager.PasswordSignInAsync(user,logingUser.Password, false,false);
+            if (userFormDb == null) { StatusCode(StatusCodes.Status203NonAuthoritative, "Неверный логин"); }
 
-            if (result.Succeeded)
+            var result = hasher.VerifyHashedPassword(userFormDb, userFormDb.PasswordHash, logingUser.Password);
+
+            if (result == PasswordVerificationResult.Success)
             {
-                    var token = await _userManager.GenerateUserTokenAsync(user,"Bearer","JWT");
+                var token = await CreateTokenAsync(userFormDb);
 
-                return Ok(token);
+                return StatusCode(StatusCodes.Status200OK, token);
             }
-
-
-            //    var userFormDb = await _context.Users.FirstOrDefaultAsync(u => u.UserName == logingUser.UserName);
-
-            //    if (userFormDb == null) { StatusCode(StatusCodes.Status203NonAuthoritative, "Неверный логин"); }
-
-            //   var result = hasher.VerifyHashedPassword(userFormDb, userFormDb.PasswordHash, logingUser.Password);
-
-            //if(result == PasswordVerificationResult.Success)
-            //    {
-            //        var token = CreateToken(userFormDb);
-
-            //    return StatusCode(StatusCodes.Status200OK, token);
-            //    }
-            //    else
-            //    {
-            //        return Unauthorized(result.ToString());
-            //    }
-            return Unauthorized();
+            else
+            {
+                userFormDb.AccessFailedCount++;
+                _context.Users.Update(userFormDb);
+                await _context.SaveChangesAsync();
+                return Unauthorized(result.ToString());
+            }
         }
 
-        
 
-        private string CreateToken(ApplicationUser user)
+
+        private async Task<string> CreateTokenAsync(ApplicationUser user)
         {
-           var optionsFromSettings = new AuthOptions(_configuration) ;
+            var optionsFromSettings = new AuthOptions(_configuration);
+
 
             
-           
-            
+
             List<Claim> claims = new List<Claim>
             {
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.Email, user.Email)
             };
-            
 
+
+            
             var signinCredentials = new SigningCredentials
               (optionsFromSettings.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256);
 
@@ -143,8 +150,17 @@ namespace Project1.Controllers
                );
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-
-
+            var token = new IdentityUserToken<string>
+            {
+                UserId=user.Id,
+                LoginProvider = user.UserName,
+                Value=jwt.Normalize(),
+                Name=jwt,
+            };
+           
+            //await _context.UserTokens.AddAsync(token);
+            await _context.SaveChangesAsync();
+           
             return jwt;
         }
 

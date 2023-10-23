@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Project1.Controllers
 {
@@ -21,6 +22,7 @@ namespace Project1.Controllers
         public IActionResult GetClientRequestParameters([FromRoute] string clientId)
         {
             var parameters = ClientRequestParametersProvider.GetClientParameters(HttpContext, clientId);
+            ;
             return Ok(parameters);
         }
     }

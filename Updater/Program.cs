@@ -1,7 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Duende.IdentityServer.Validation;
 
-using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,17 +21,27 @@ internal class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseMySQL(connectionString);
-            
+
         });
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         
 
         var app = builder.Build();
-         var db = app.Services.GetService<ApplicationDbContext>();
+        var db = app.Services.GetService<ApplicationDbContext>();
         var data = Valute.GetValute_SBer();
 
-     
-        db.Currencies.UpdateRange(data);
+        if (db.Currencies.Count() == 0)
+        {
+            db.Currencies.AddRange(data);
+        }
+        else
+        {
+            db.Currencies.UpdateRange(data);
+            
+        }
+
+
+      
         db.SaveChanges();
        
         Console.WriteLine("++++++++++End Update+++++++++++++++");

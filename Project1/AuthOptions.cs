@@ -6,7 +6,7 @@ public record AuthOptions(IConfiguration _configuration)
 {
 
     public readonly string ISSUER = "http://localhost:5098"; // издатель токена
-    public readonly string AUDIENCE = "http://localhost:5098"; // потребитель токена
+    public readonly string AUDIENCE = "https://localhost:44424"; // потребитель токена
     private string KEY = "JxpJ3n5kFz8q/aPJn7DyrEEmi1+cAzhoGJf4MZxtCkc=";   // ключ для шифрации
 
     //public readonly string ISSUER = _configuration["Authentication:Schemes:Bearer:ValidIssuer:0:Value"]?? "http://localhost:5098"; // издатель токена

@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using Updater.Models;
 using Updater.Data;
 using Microsoft.EntityFrameworkCore;
+using ZstdSharp;
 
 namespace Updater
 {
@@ -20,7 +21,7 @@ namespace Updater
 
 
             XmlSerializer serializer = new XmlSerializer(typeof(ValCurs));
-            ValCurs? valCurs;
+            ValCurs valCurs;
 
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.IgnoreComments = true;
@@ -46,28 +47,30 @@ namespace Updater
                 }
                 if (valCurs == null) { Console.WriteLine("Нет данных о валюте"); }
 
+                 Console.WriteLine("\t" + valCurs.name +"\n\tUpdate data:"+valCurs.Date);
+                Console.WriteLine("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+                foreach (var curs in valCurs.Valute)
+                {
+
+                    Console.WriteLine(String.Concat(nameof(curs.Value), ": ", curs.Value, " ", curs.Name, " ", nameof(curs.Rate), ": ", curs.Rate, " ",
+                       " за ", curs.Nominal));
+
+                }
+                Currency[] result = valCurs?.Valute ?? throw new Exception("Ошибка загрузки данных");
+
+
+                return result;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw;
+                    
 
             }
-            Console.WriteLine("\t" + valCurs.name +"\n\tUpdate data:"+valCurs.Date);
            
 
-            Console.WriteLine("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-            foreach (var curs in valCurs.Valute) 
-            {
-
-                Console.WriteLine(String.Concat(nameof(curs.Value), ": ", curs.Value, " ", curs.Name, " ", nameof(curs.Rate), ": ", curs.Rate, " ",
-                   " за ", curs.Nominal));
-
-            }
-            Currency[] result = valCurs?.Valute??throw new Exception("Ошибка загрузки данных");
-
-
-            return result;
+          
         }
 
 
