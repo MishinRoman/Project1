@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { TOKEN_KEY } from "../services/constants";
 import { Button } from "reactstrap";
 import CurrenceCard from "./CurrenceCard";
@@ -7,8 +7,8 @@ const token = localStorage.getItem(TOKEN_KEY);
 
 export const FetchData = (props) => {
   const [currencies, setCurrencies] = useState([]);
-  const [hidden, setHidden] = useState(false);
   const [error, setError] = useState("");
+  const ref = useRef(false);
 
   console.log("Submited in Fetcn", props.submited);
 
@@ -27,27 +27,21 @@ export const FetchData = (props) => {
 
     getCurrencies();
   }, [props.submited]);
-
+  const handelClick = (value) => {
+    return value;
+  };
   return (
     <>
       <h1 className="m-0-auto">Курс валют</h1>
-      <table className="table table-striped" aria-labelledby="tabelLabel">
-        <thead>
-          <tr>
-            <th>Наименование</th>
-            <th></th>
-          </tr>
-        </thead>
+      <th>Наименование</th>
+      {currencies.map((currency) => (
+        <div key={currency.id}>
+          <p>{currency.name}</p>
+          <CurrenceCard id={currency.id} click={handelClick} />
 
-        <tbody>
-          {currencies.map((currency) => (
-            <tr key={currency.id}>
-              <td>{currency.name}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div>{error}</div>
+          {handelClick}
+        </div>
+      ))}
     </>
   );
 };
