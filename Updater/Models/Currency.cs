@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Xml.XPath;
@@ -9,10 +10,9 @@ namespace Updater.Models
 {
     public class Currency
     {
-       
-        [XmlAttribute("ID")]
+        [XmlAttribute(AttributeName = "ID")]
         [Key]
-        public string ID;
+        public string Id { get; set; }
         public string Name { get; set; }
         [XmlElement( ElementName="VunitRate")]
         public string Rate { get; set; }

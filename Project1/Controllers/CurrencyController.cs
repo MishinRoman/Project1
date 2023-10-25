@@ -8,6 +8,8 @@ using Updater.Data;
 using Updater;
 using Microsoft.Build.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Duende.IdentityServer.Extensions;
+using Updater.Models;
 
 namespace Project1.Controllers
 {
@@ -21,20 +23,26 @@ namespace Project1.Controllers
         {
             _db = db;
         }
-       
+
         [HttpGet]
         public async Task<IActionResult> GetCurrences()
         {
             var currencies = await _db.Currencies.ToListAsync();
+            if (currencies.IsNullOrEmpty())
+            {
+                NotFound();
+            }
             return Ok(currencies);
         }
 
-        
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCurrency(string Id)
         {
-            
-            var currency = await _db.Currencies.FirstOrDefaultAsync(c => c.ID == Id);
+
+
+            var currency = await _db.Currencies.FirstOrDefaultAsync(c => c.Id == Id);
+            if(currency == null) { return NotFound(); }
             return Ok(currency);
         }
 

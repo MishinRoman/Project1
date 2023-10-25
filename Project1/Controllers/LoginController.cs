@@ -45,13 +45,13 @@ namespace Project1.Controllers
         {
             if(request.UserName.IsNullOrEmpty()||request.Password.IsNullOrEmpty()) 
             {
-                return StatusCode(StatusCodes.Status406NotAcceptable, new {message= "Пользователь уже есть"});            
+                return StatusCode(StatusCodes.Status415UnsupportedMediaType, new {message= "Пустые данные"});            
                     }
             var userFromDb = await _context?.Users.FirstOrDefaultAsync(u => u.UserName == request.UserName);
 
             if (userFromDb != null)
             {
-                return StatusCode(StatusCodes.Status409Conflict, "This login exist");
+                return StatusCode(StatusCodes.Status403Forbidden, "This login exist");
 
             }
 
@@ -102,7 +102,7 @@ namespace Project1.Controllers
         {
             var userFormDb = await _context.Users.FirstOrDefaultAsync(u => u.UserName == logingUser.UserName);
 
-            if (userFormDb == null) { StatusCode(StatusCodes.Status203NonAuthoritative, "Неверный логин"); }
+            if (userFormDb == null) {return StatusCode(StatusCodes.Status203NonAuthoritative, "Неверный логин"); }
 
             var result = hasher.VerifyHashedPassword(userFormDb, userFormDb.PasswordHash, logingUser.Password);
 

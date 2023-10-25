@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function ButtonForm(props) {
+export default function ButtonForm({ ...props }) {
   return (
     <div>
       <button
@@ -9,10 +9,12 @@ export default function ButtonForm(props) {
           height: 45,
           border: "none",
           borderRadius: 5,
-          backgroundColor: "blue",
+          backgroundColor: "#067cc9",
           display: "block",
           margin: "0 15px",
         }}
+        onClick={props.onClick}
+        type={props.type}
       >
         {props.children}
       </button>

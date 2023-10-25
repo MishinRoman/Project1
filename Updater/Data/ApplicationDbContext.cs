@@ -23,7 +23,7 @@ namespace Updater.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
 
-            builder.Entity<Currency>().HasKey(k => k.ID);
+            builder.Entity<Currency>().HasKey(k => k.Id).HasName("id");
 
 
             base.OnModelCreating(builder);

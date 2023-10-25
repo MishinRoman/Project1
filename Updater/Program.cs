@@ -45,6 +45,8 @@ internal class Program
         db.SaveChanges();
        
         Console.WriteLine("++++++++++End Update+++++++++++++++");
+        Console.WriteLine($"Обновление прошло  {DateTime.Now}");
+
 
     }
 }
