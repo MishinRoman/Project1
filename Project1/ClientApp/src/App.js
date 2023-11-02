@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import "./custom.css";
 import { FetchData } from "./components/FetchData";
 import LoginForm from "./components/LoginForm";
-import { PATTERN_USER_FORM, TOKEN_KEY } from "./services/constants";
+import { PATTERN_USER_FORM } from "./services/constants";
 import ButtonForm from "./components/UI/Button/ButtonForm";
 
 export const App = () => {
@@ -19,7 +19,7 @@ export const App = () => {
   return (
     <div style={{ position: "relative" }}>
       <div>
-        {!submited | (pattern === PATTERN_USER_FORM.registration) && (
+        {submited && pattern === PATTERN_USER_FORM.registration && (
           <div className="d-flex justify-content-end">
             <ButtonForm
               onClick={() => {

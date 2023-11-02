@@ -49,13 +49,9 @@ function LoginForm({ ...props }) {
     if (props.pattern === PATTERN_USER_FORM.registration) {
       setHeader("Регистрация");
       registration(user);
-      // .then(true)
-      // .catch((err) => setSubmitErrors(...submitErrors, err));
     } else {
       setHeader("Авторизация");
       authorization(user);
-      // .then(true)
-      // .catch((err) => setSubmitErrors(...submitErrors, err));
     }
   };
 
